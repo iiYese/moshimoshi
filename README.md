@@ -11,7 +11,7 @@ use moshimoshi::*;
 #[derive(Component)]
 struct Button;
 
-#[derive(Component)]
+#[derive(Component, Deref, DerefMut)]
 struct OnClick(EntityCallback);
 
 #[derive(Component, Deref, DerefMut)]
@@ -25,7 +25,7 @@ fn setup(mut commands: Commands) {
         Button,
         Counter(0),
         Text("Click Me".to_string()),
-        OnClick(moshi!(e, counter: Query<&mut Counter> => {
+        OnClick(moshi!([e: Entity], counter: Query<&mut Counter> => {
             **counter.get_mut(e).unwrap() += 1;
         }))
     ));
@@ -34,7 +34,7 @@ fn setup(mut commands: Commands) {
 impl Button {
     fn update(mut commands: Commands, buttons: Query<(Entity, &OnClick), Changed<Button>>) {
         for (entity, callback) in buttons.iter() {
-            commands.add(RunEntityCallback { entity, func: ***callback });
+            commands.add(RunEntityCallback { entity, func: **callback });
         }
     }
 }
@@ -45,3 +45,8 @@ fn main() {
         .run()
 }
 ```
+
+### Version table
+| Bevy version | moshimoshi verison |
+|--------------|--------------------|
+| 0.11         | 0.1 - 0.2          |
